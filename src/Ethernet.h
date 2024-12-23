@@ -21,37 +21,11 @@
 #ifndef ethernet_h_
 #define ethernet_h_
 
-// All symbols exposed to Arduino sketches are contained in this header file
-//
-// Older versions had much of this stuff in EthernetClient.h, EthernetServer.h,
-// and socket.h.  Including headers in different order could cause trouble, so
-// these "friend" classes are now defined in the same header file.  socket.h
-// was removed to avoid possible conflict with the C library header files.
-
-
-// Configure the maximum number of sockets to support.  W5100 chips can have
-// up to 4 sockets.  W5200 & W5500 can have up to 8 sockets.  Several bytes
-// of RAM are used for each socket.  Reducing the maximum can save RAM, but
-// you are limited to fewer simultaneous connections.
-#if defined(RAMEND) && defined(RAMSTART) && ((RAMEND - RAMSTART) <= 2048)
-#define MAX_SOCK_NUM 4
-#else
 #define MAX_SOCK_NUM 8
-#endif
 
-// By default, each socket uses 2K buffers inside the WIZnet chip.  If
-// MAX_SOCK_NUM is set to fewer than the chip's maximum, uncommenting
-// this will use larger buffers within the WIZnet chip.  Large buffers
-// can really help with UDP protocols like Artnet.  In theory larger
-// buffers should allow faster TCP over high-latency links, but this
-// does not always seem to work in practice (maybe WIZnet bugs?)
-//#define ETHERNET_LARGE_BUFFERS
+#include "hardware/spi.h"
+#include "IPAddress.h"
 
-
-#include <Arduino.h>
-#include "Client.h"
-#include "Server.h"
-#include "Udp.h"
 
 enum EthernetLinkStatus {
 	Unknown,
@@ -149,7 +123,7 @@ extern EthernetClass Ethernet;
 
 #define UDP_TX_PACKET_MAX_SIZE 24
 
-class EthernetUDP : public UDP {
+class EthernetUDP {
 private:
 	uint16_t _port; // local port to listen on
 	IPAddress _remoteIP; // remote IP address for the incoming packet whilst it's being processed
@@ -211,7 +185,7 @@ public:
 
 
 
-class EthernetClient : public Client {
+class EthernetClient {
 public:
 	EthernetClient() : _sockindex(MAX_SOCK_NUM), _timeout(1000) { }
 	EthernetClient(uint8_t s) : _sockindex(s), _timeout(1000) { }
@@ -251,7 +225,7 @@ private:
 };
 
 
-class EthernetServer : public Server {
+class EthernetServer {
 private:
 	uint16_t _port;
 public:
